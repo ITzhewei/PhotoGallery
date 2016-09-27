@@ -115,6 +115,7 @@ public class PhotoGalleryFragment extends Fragment {
             return mGalleryItems.size();
         }
 
+
         private class GalleryHolder extends RecyclerView.ViewHolder {
             private ImageView mImageView;
 
