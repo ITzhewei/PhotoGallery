@@ -1,7 +1,9 @@
-package com.example.john.photogallery;
+package com.example.john.photogallery.net;
 
 import android.net.Uri;
 import android.util.Log;
+
+import com.example.john.photogallery.GalleryItem;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

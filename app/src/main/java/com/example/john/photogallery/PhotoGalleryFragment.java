@@ -1,9 +1,12 @@
 package com.example.john.photogallery;
 
 import android.app.ProgressDialog;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -12,6 +15,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+
+import com.example.john.photogallery.net.Downloader;
+import com.example.john.photogallery.net.NetUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,10 +38,26 @@ public class PhotoGalleryFragment extends Fragment {
     private ProgressDialog mProgressDialog;
     private FetchItemsTak mTak;
 
+    private Downloader<GalleryAdapter.GalleryHolder> mDownloader;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mProgressDialog = new ProgressDialog(getActivity());
+
+        Handler responseHandler = new Handler();
+        mDownloader = new Downloader<>(responseHandler);
+        mDownloader.setLoadListener(new Downloader.DownLoadListener<GalleryAdapter.GalleryHolder>() {
+            @Override
+            public void onDownLoad(GalleryAdapter.GalleryHolder target, Bitmap thumbnail) {
+                BitmapDrawable drawable = new BitmapDrawable(getResources(), thumbnail);
+                target.bindGallery(drawable);
+            }
+        });
+        mDownloader.start();
+        mDownloader.getLooper();//确保onLooperPrepared()方法会执行
+
+
     }
 
     @Nullable
@@ -45,7 +67,6 @@ public class PhotoGalleryFragment extends Fragment {
         ButterKnife.bind(this, view);
 
         initView();
-
         mTak = new FetchItemsTak();
         mTak.execute();
 
@@ -55,7 +76,8 @@ public class PhotoGalleryFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mTak.cancel(false);//view销毁,取消下载任务
+        //        mTak.cancel(false);//view销毁,取消下载任务
+        mDownloader.clearQueue();//view视图销毁的时候,取消下载任务中对holder的持有
     }
 
     private void initView() {
@@ -92,6 +114,7 @@ public class PhotoGalleryFragment extends Fragment {
         }
     }
 
+
     private class GalleryAdapter extends RecyclerView.Adapter {
         List<GalleryItem> mGalleryItems;
 
@@ -108,6 +131,8 @@ public class PhotoGalleryFragment extends Fragment {
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
             GalleryHolder galleryHolder = (GalleryHolder) holder;
+            mDownloader.queueThumbnail(galleryHolder, mGalleryItems.get(position).getMurl());
+            galleryHolder.bindGallery(getResources().getDrawable(R.mipmap.ic_launcher));
         }
 
         @Override
