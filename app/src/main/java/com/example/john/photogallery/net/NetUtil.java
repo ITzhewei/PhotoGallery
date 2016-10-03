@@ -24,6 +24,17 @@ public class NetUtil {
     private static final String TAG = "aaa";
     private static final String API_KEY = "95b8e0b2238f94a69feb06aca4148645";
 
+    private static final String FETCH_RECENTS_METHOD = "flickr.photos.getRecent";
+    private static final String SEARCH_METHOD = "flickr.photos.search";
+    private static final Uri ENDPOINT = Uri.parse("https://api.flickr.com/services/rest/")
+            .buildUpon()
+            //            .appendQueryParameter("method", "flickr.photos.getRecent")
+            .appendQueryParameter("api_key", API_KEY)
+            .appendQueryParameter("format", "json")
+            .appendQueryParameter("nojsoncallback", "1")
+            .appendQueryParameter("extras", "url_s")
+            .build();
+
     public byte[] getUrlBytes(String specUrl) throws Exception {
         URL url = new URL(specUrl);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -51,18 +62,11 @@ public class NetUtil {
         return new String(getUrlBytes(specUrl));
     }
 
-    public List<GalleryItem> fetchItems() {
+    public List<GalleryItem> downLoadGalleryItems(String url) {
         List<GalleryItem> galleryItems = new ArrayList<>();
         try {
-            String url = Uri.parse("https://api.flickr.com/services/rest/").buildUpon()
-                    .appendQueryParameter("method", "flickr.photos.getRecent")
-                    .appendQueryParameter("api_key", API_KEY)
-                    .appendQueryParameter("format", "json")
-                    .appendQueryParameter("nojsoncallback", "1")
-                    .appendQueryParameter("extras", "url_s")
-                    .build().toString();
             String jsonString = getUrlString(url);
-            Log.i(TAG, "fetchItems: " + jsonString);
+            Log.i(TAG, "downLoadGalleryItems: " + jsonString);
 
             JSONObject jsonBody = new JSONObject(jsonString);
             parseItems(galleryItems, jsonBody);
@@ -72,6 +76,25 @@ public class NetUtil {
         }
         return galleryItems;
     }
+
+    public List<GalleryItem> fetchRecentPhotos() {
+        String url = buildUrl(FETCH_RECENTS_METHOD, null);
+        return downLoadGalleryItems(url);
+    }
+
+    public List<GalleryItem> searchPhotos(String query) {
+        String url = buildUrl(SEARCH_METHOD, query);
+        return downLoadGalleryItems(url);
+    }
+
+    private String buildUrl(String method, String query) {
+        Uri.Builder builder = ENDPOINT.buildUpon().appendQueryParameter("method", method);
+        if (method.equals(SEARCH_METHOD)) {
+            builder.appendQueryParameter("text", query);
+        }
+        return builder.build().toString();
+    }
+
 
     private void parseItems(List<GalleryItem> items, JSONObject jsonBody) throws Exception {
         JSONObject photosJsonObject = jsonBody.getJSONObject("photos");
@@ -85,6 +108,7 @@ public class NetUtil {
                 continue;
             }
             galleryItem.setMurl(object.getString("url_s"));
+            galleryItem.setOwner(object.getString("owner"));
             items.add(galleryItem);
         }
     }
