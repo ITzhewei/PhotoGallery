@@ -2,16 +2,6 @@
 <manifest package="com.example.john.photogallery"
           xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <permission
-        android:name="com.zzw.android.photogallery.PRIVATE"
-        android:protectionLevel="signature"/>
-
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/><!--获取网络状态权限-->
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/><!--获知设备是否已经重新启动-->
-
-    <uses-permission android:name="com.zzw.android.photogallery.PRIVATE"/>
-
     <application
         android:name=".base.MyApplication"
         android:allowBackup="true"
@@ -28,6 +18,11 @@
             </intent-filter>
         </activity>
 
+        <!--键盘的开关|屏幕方向的改变|屏幕大小的改变-->
+        <activity
+            android:name=".view.PhotoPageActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            />
         <!--service-->
         <service android:name=".service.PollService"/>
 
@@ -44,5 +39,15 @@
             </intent-filter>
         </receiver>
     </application>
+
+    <permission
+        android:name="com.zzw.android.photogallery.PRIVATE"
+        android:protectionLevel="signature"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/><!--获取网络状态权限-->
+
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/><!--获知设备是否已经重新启动-->
+
+    <uses-permission android:name="com.zzw.android.photogallery.PRIVATE"/>
 
 </manifest>

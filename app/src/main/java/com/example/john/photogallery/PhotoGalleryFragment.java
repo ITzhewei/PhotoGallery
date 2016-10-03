@@ -17,10 +17,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.example.john.photogallery.base.MyApplication;
 import com.example.john.photogallery.net.NetUtil;
 import com.example.john.photogallery.receiver.VisiableFragment;
 import com.example.john.photogallery.service.PollService;
 import com.example.john.photogallery.util.QueryPreferences;
+import com.example.john.photogallery.view.PhotoPageActivity;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -233,11 +235,11 @@ public class PhotoGalleryFragment extends VisiableFragment {
 
             public void bindGallery(GalleryItem galleryItem) {
                 mGalleryItem = galleryItem;
-//                final PhotoViewAttacher viewAttacher = new PhotoViewAttacher(mImageView);
+                //                final PhotoViewAttacher viewAttacher = new PhotoViewAttacher(mImageView);
                 Picasso.with(getActivity()).load(galleryItem.getMurl()).into(mImageView, new Callback() {
                     @Override
                     public void onSuccess() {
-//                        viewAttacher.update();
+                        //                        viewAttacher.update();
                     }
 
                     @Override
@@ -249,7 +251,8 @@ public class PhotoGalleryFragment extends VisiableFragment {
 
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(Intent.ACTION_VIEW, mGalleryItem.getPhotoPageUri());
+                //                Intent i = new Intent(Intent.ACTION_VIEW, mGalleryItem.getPhotoPageUri());
+                Intent i = PhotoPageActivity.newIntent(MyApplication.context, mGalleryItem.getPhotoPageUri());
                 startActivity(i);
             }
         }
